@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gnome-shell-extension-tuxedocontrol">
+  <schema id="org.gnome.shell.extensions.tuxedocontrol" path="/org/gnome/shell/extensions/tuxedocontrol/">
+	<key name="pair-current" type="s">
+	  	<default>'EURUSD'</default>
+	</key>
+	<key name="refresh-interval" type="i">
+	  	<default>30</default>
+	</key>
+	<key name="price-in-panel" type="s">
+	  	<default>'Bid'</default>
+	</key>
+	<key name="online-status" type="b">
+	  	<default>true</default>
+	</key>
+  </schema>
+</schemalist>
