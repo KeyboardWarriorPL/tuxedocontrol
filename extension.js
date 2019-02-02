@@ -54,9 +54,7 @@ const TuxedoCtl = new Lang.Class({
         this.menu.addMenuItem(separator);
 
         let item = new PopupMenu.PopupMenuItem(_("Apply"));
-        item.connect('activate', Lang.bind(this, function() {
-            this._refresh();
-        }));
+        item.connect('activate', Lang.bind(this, this._apply));
         this.menu.addMenuItem(item);
     },
 
@@ -78,35 +76,33 @@ const TuxedoCtl = new Lang.Class({
         return label_left;
     },
 
+    _apply: function() {
+        // write TUX_SYS
+        this._refresh();
+    },
+
     _loadData: function() {
+        // read TUX_SYS
         this._refreshUI();
     },
 
     _refresh: function() {
         this._loadData(this._refreshUI);
-        this._removeTimeout();
-        this._timeout = Mainloop.timeout_add_seconds(this._refreshInterval, Lang.bind(this, this._refresh));
         return true;
     },
 
     _refreshUI: function(data) {
-        this.symbol.set_text(data.symbol);
-        this.ask.set_text(data.ask.toString());
-        this.bid.set_text(data.bid.toString());
-        this.change.set_text(data.change.toString());
-        let date = new Date((data.lasttime - SERVER_TIME_GMT_DIFF) * 1000);
-        this.lasttime.set_text(date.toLocaleString());
-
+        // refresh displayed settings
         let txt;
-        if (this._priceInPanel == _("Ask"))
-            txt = this.change.text + ' ' + this.ask.text;
+        if (this._kbState)
+            txt = 'On';
         else
-            txt = this.change.text + ' ' + this.bid.text;
+            txt = 'Off';
 
         this.buttonText.set_text(txt);
-    }
+    },
 
-    /*_onPreferencesActivate: function() {
+    _onPreferencesActivate: function() {
         Util.spawn(["gnome-shell-extension-prefs", "tuxedocontrol@gbs"]);
         return 0;
     },
@@ -118,61 +114,113 @@ const TuxedoCtl = new Lang.Class({
         }));
     },
 
-    get _currentPair() {
+    get _sectionLeft() {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_string(FOREX_PAIR_CURRENT);
+        return this._settings.get_int(TUX_LEFT);
     },
 
-    get _refreshInterval() {
+    set _sectionLeft(v) {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_int(FOREX_REFRESH_INTERVAL);
+        this._settings.set_int(TUX_LEFT, v);
     },
 
-    get _priceInPanel() {
+    get _sectionMiddle() {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_string(FOREX_PRICE_IN_PANEL);
+        return this._settings.get_int(TUX_MIDDLE);
     },
 
-    get _onlineStatusConf() {
+    set _sectionMiddle(v) {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_boolean(FOREX_ONLINE_STATUS);
+        this._settings.set_int(TUX_MIDDLE, v);
     },
 
-    set _onlineStatusConf(v) {
+    get _sectionRight() {
         if (!this._settings)
             this._loadConfig();
-        this._settings.set_boolean(FOREX_ONLINE_STATUS, v);
+        return this._settings.get_int(TUX_RIGHT);
     },
 
-    _removeTimeout: function() {
-        if (this._timeout) {
-            Mainloop.source_remove(this._timeout);
-            this._timeout = null;
-        }
+    set _sectionRight(v) {
+        if (!this._settings)
+            this._loadConfig();
+        this._settings.set_int(TUX_RIGHT, v);
+    },
+
+    get _brightnessV() {
+        if (!this._settings)
+            this._loadConfig();
+        return this._settings.get_int(TUX_BRIGHTNESS);
+    },
+
+    set _brightnessV(v) {
+        if (!this._settings)
+            this._loadConfig();
+        this._settings.set_int(TUX_BRIGHTNESS, v);
+    },
+
+    get _kbState() {
+        if (!this._settings)
+            this._loadConfig();
+        return this._settings.get_boolean(TUX_STATE);
+    },
+
+    set _kbState(v) {
+        if (!this._settings)
+            this._loadConfig();
+        this._settings.set_boolean(TUX_STATE, v);
     },
 
     stop: function() {
-        if (_httpSession !== undefined)
-            _httpSession.abort();
-        _httpSession = undefined;
-
-        if (this._timeout)
-            Mainloop.source_remove(this._timeout);
-        this._timeout = undefined;
-
-        this._onlineStatusConf = this._online_status;
-
         if (this._settingsC) {
             this._settings.disconnect(this._settingsC);
             this._settingsC = undefined;
         }
         this.menu.removeAll();
+    },
+
+    trySpawn: function(argv)
+    {
+        var success, pid;
+        try {
+            [success, pid] = GLib.spawn_async(null, argv, null, GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD, null);
+        } catch (err) {
+            // Rewrite the error in case of ENOENT
+            if (err.matches(GLib.SpawnError, GLib.SpawnError.NOENT)) {
+                throw new GLib.SpawnError({ code: GLib.SpawnError.NOENT, message: _("Command not found") });
+            } else if (err instanceof GLib.Error) {
+                // The exception from gjs contains an error string like:
+                //   Error invoking GLib.spawn_command_line_async: Failed to
+                //   execute child process "foo" (No such file or directory)
+                // We are only interested in the part in the parentheses. (And
+                // we can't pattern match the text, since it gets localized.)
+                let message = err.message.replace("/.*\((.+)\)/", '$1');
+                throw new (err.constructor)({ code: err.code, message: message });
+            } else {
+                throw err;
+            }
+        }
+        // Dummy child watch; we don't want to double-fork internally
+        // because then we lose the parent-child relationship, which
+        // can break polkit.  See https://bugzilla.redhat.com//show_bug.cgi?id=819275
+        GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid, () => {});
+    },
+
+    //spawning cmd line
+    trySpawnCommandLine: function(command_line) {
+        let success, argv
+        try {
+            [success, argv] = GLib.shell_parse_argv(command_line);
+        } catch (err) {
+            // Replace "Error invoking GLib.shell_parse_argv: " with something nicer
+            err.message = err.message.replace("/[^:]*: /", _("Could not parse command:") + "\n");
+            throw err;
+        }
+        trySpawn(argv);
     }
-    */
 
 });
 

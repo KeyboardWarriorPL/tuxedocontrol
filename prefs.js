@@ -48,18 +48,18 @@ const TuxedoPrefsWidget = new GObject.Class({
             halign: Gtk.Align.CENTER
         });
         button.connect("toggled", Lang.bind(this, function() {
-            this._kbState = _("On");
+            this._kbState = true;
         }));
-        if (button.label == this._kbState)
+        if (this._kbState)
             button.set_active(true);
         vbox.add(button);
         button = Gtk.RadioButton.new_with_label_from_widget(radio, _("Off"), {
             halign: Gtk.Align.CENTER
         });
         button.connect("toggled", Lang.bind(this, function() {
-            this._kbState = _("Off");
+            this._kbState = false;
         }));
-        if (button.label == this._kbState)
+        if (!this._kbState)
             button.set_active(true);
         vbox.add(button);
         hbox.pack_start(label, false, false, 100);
@@ -213,14 +213,14 @@ const TuxedoPrefsWidget = new GObject.Class({
     get _kbState() {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_bool(TUX_STATE);
+        return this._settings.get_boolean(TUX_STATE);
     },
 
     set _kbState(v) {
         if (!this._settings)
             this._loadConfig();
-        this._settings.set_bool(TUX_STATE, v);
-    },
+        this._settings.set_boolean(TUX_STATE, v);
+    }
 });
 
 function buildPrefsWidget() {
