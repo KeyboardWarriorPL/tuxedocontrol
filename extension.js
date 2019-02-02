@@ -37,11 +37,11 @@ const TuxedoCtl = new Lang.Class({
         this.parent(0.0, "Tuxedo Control", false);
         this._loadConfig();
         this._online_status = this._onlineStatusConf;
-        this.buttonText = new St.Label({
-            text: "TUX",
-            //icon_name: "keyboard",
-            //style_class: "input-keyboard",
-            y_align: Clutter.ActorAlign.CENTER
+        this.buttonText = new St.Icon({
+            //text: "TUX",
+            //y_align: Clutter.ActorAlign.CENTER
+            icon_name: "input-keyboard",
+            style_class: "kbicon"
         });
         this.actor.add_actor(this.buttonText);
         this._buildMenu();
