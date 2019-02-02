@@ -11,28 +11,17 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Convenience = Me.imports.convenience;
 const Lang = imports.lang;
 
-const FOREX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
-const FOREX_PAIR_CURRENT = 'pair-current';
-const FOREX_REFRESH_INTERVAL = 'refresh-interval';
-const FOREX_PRICE_IN_PANEL = 'price-in-panel';
-
-const SYMBOLS = [
-    'EURUSD',
-    'GBPUSD',
-    'USDJPY',
-    'USDCHF',
-    'USDCAD',
-    'EURJPY',
-    'EURCHF',
-    'GBPJPY',
-    'GBPCHF',
-    'NZDUSD',
-    'AUDUSD',
-    'EURCAD',
-    'EURAUD',
-    'EURGBP',
-    'GOLD'
-];
+const TUX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
+const TUX_BRIGHTNESS = 'brightness';
+const TUX_RED1 = 'red-1';
+const TUX_RED2 = 'red-2';
+const TUX_RED3 = 'red-3';
+const TUX_GREEN1 = 'green-1';
+const TUX_GREEN2 = 'green-2';
+const TUX_GREEN3 = 'green-3';
+const TUX_BLUE1 = 'blue-1';
+const TUX_BLUE2 = 'blue-2';
+const TUX_BLUE3 = 'blue-3';
 
 function init() {
     Convenience.initTranslations('gnome-shell-extension-tuxedocontrol');
@@ -53,7 +42,7 @@ const TuxedoPrefsWidget = new GObject.Class({
         let hbox = new Gtk.HBox();
         let vbox = new Gtk.VBox();
         let label = new Gtk.Label({
-            label: _("Price in panel"),
+            label: _("Brightness"),
             use_markup: true,
             halign: Gtk.Align.START
         });        

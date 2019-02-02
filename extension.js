@@ -16,7 +16,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Config = imports.misc.config;
 const Convenience = Me.imports.convenience;
 
-const FOREX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
+/*const FOREX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
 const FOREX_PAIR_CURRENT = 'pair-current';
 const FOREX_REFRESH_INTERVAL = 'refresh-interval';
 const FOREX_PRICE_IN_PANEL = 'price-in-panel';
@@ -27,7 +27,7 @@ const UP_POINTING = String.fromCharCode(9650);
 const DOWN_POINTING = String.fromCharCode(9660);
 const SERVER_TIME_GMT_DIFF = 10800;
 
-let _httpSession;
+let _httpSession;*/
 
 const TuxedoCtl = new Lang.Class({
     Name: 'TuxedoCtl',
@@ -38,8 +38,6 @@ const TuxedoCtl = new Lang.Class({
         this._loadConfig();
         this._online_status = this._onlineStatusConf;
         this.buttonText = new St.Icon({
-            //text: "TUX",
-            //y_align: Clutter.ActorAlign.CENTER
             icon_name: "input-keyboard",
             style_class: "kbicon"
         });
@@ -50,36 +48,18 @@ const TuxedoCtl = new Lang.Class({
 
     _buildMenu: function() {
         this.menu.removeAll();
-        this.symbol = this._createMenuItem(_("Symbol"));
-        this.ask = this._createMenuItem(_("Ask"));
-        this.bid = this._createMenuItem(_("Bid"));
-        this.change = this._createMenuItem(_("Change"));
-
-        this.lasttime = new St.Label({
-            text: _("...")
-        });
-        let item = new PopupMenu.PopupBaseMenuItem({
-            reactive: false
-        });
-        item.actor.add(this.lasttime);
-        this.menu.addMenuItem(item);
+        this.brightness = this._createMenuItem(_("Brightness"));
+        this.red = this._createMenuItem(_("R"));
+        this.green = this._createMenuItem(_("G"));
+        this.blue = this._createMenuItem(_("B"));
 
         let separator = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(separator);
 
-        item = new PopupMenu.PopupMenuItem(_("Reload"));
+        let item = new PopupMenu.PopupMenuItem(_("Apply"));
         item.connect('activate', Lang.bind(this, function() {
-            this._online_status = true;
             this._refresh();
         }));
-        this.menu.addMenuItem(item);
-
-        item = new PopupMenu.PopupMenuItem(_("Settings"));
-        item.connect('activate', Lang.bind(this, this._onPreferencesActivate));
-        this.menu.addMenuItem(item);
-
-        item = new PopupMenu.PopupMenuItem(_("Offline / Online"));
-        item.connect('activate', Lang.bind(this, this._setOffline));
         this.menu.addMenuItem(item);
     },
 
@@ -112,31 +92,8 @@ const TuxedoCtl = new Lang.Class({
         return true;
     },
 
-    _setOffline: function() {
-        if (this._online_status == true) {
-            this._removeTimeout();
-            this.buttonText.set_text(_("Offline"));
-            this._online_status = false;
-        } else {
-            this._online_status = true;
-            this._refresh();
-        }
-    },
-
-    _onPreferencesActivate: function() {
-        Util.spawn(["gnome-shell-extension-prefs", "tuxedocontrol@gbs"]);
-        return 0;
-    },
-
-    _loadConfig: function() {
-        this._settings = Convenience.getSettings(FOREX_SETTINGS_SCHEMA);
-        this._settingsC = this._settings.connect("changed", Lang.bind(this, function() {
-            this._refresh();
-        }));
-    },
-
     _refreshUI: function(data) {
-        /*this.symbol.set_text(data.symbol);
+        this.symbol.set_text(data.symbol);
         this.ask.set_text(data.ask.toString());
         this.bid.set_text(data.bid.toString());
         this.change.set_text(data.change.toString());
@@ -147,9 +104,21 @@ const TuxedoCtl = new Lang.Class({
         if (this._priceInPanel == _("Ask"))
             txt = this.change.text + ' ' + this.ask.text;
         else
-            txt = this.change.text + ' ' + this.bid.text;*/
+            txt = this.change.text + ' ' + this.bid.text;
 
-        //this.buttonText.set_text(txt);
+        this.buttonText.set_text(txt);
+    }
+
+    /*_onPreferencesActivate: function() {
+        Util.spawn(["gnome-shell-extension-prefs", "tuxedocontrol@gbs"]);
+        return 0;
+    },
+
+    _loadConfig: function() {
+        this._settings = Convenience.getSettings(FOREX_SETTINGS_SCHEMA);
+        this._settingsC = this._settings.connect("changed", Lang.bind(this, function() {
+            this._refresh();
+        }));
     },
 
     get _currentPair() {
@@ -206,6 +175,8 @@ const TuxedoCtl = new Lang.Class({
         }
         this.menu.removeAll();
     }
+    */
+
 });
 
 let tuxedoMenu;

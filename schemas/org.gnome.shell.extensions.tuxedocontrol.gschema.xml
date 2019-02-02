@@ -1,17 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gnome-shell-extension-tuxedocontrol">
   <schema id="org.gnome.shell.extensions.tuxedocontrol" path="/org/gnome/shell/extensions/tuxedocontrol/">
-	<key name="pair-current" type="s">
-	  	<default>'EURUSD'</default>
+	<key name="brightness" type="i">
+			<range min="0" max="255" />
+	  	<default>64</default>
+			<summary>Backlight brightness</summary>
 	</key>
-	<key name="refresh-interval" type="i">
-	  	<default>30</default>
+	<key name="red-1" type="i">
+			<range min="0" max="255" />
+	  	<default>0</default>
+			<summary>Red channel section left</summary>
 	</key>
-	<key name="price-in-panel" type="s">
-	  	<default>'Bid'</default>
+	<key name="red-2" type="i">
+			<range min="0" max="255" />
+	  	<default>0</default>
+			<summary>Red channel section middle</summary>
 	</key>
-	<key name="online-status" type="b">
-	  	<default>true</default>
+	<key name="red-3" type="i">
+			<range min="0" max="255" />
+	  	<default>0</default>
+			<summary>Red channel section right</summary>
+	</key>
+	<key name="green-1" type="i">
+			<range min="0" max="255" />
+	  	<default>0</default>
+			<summary>Green channel section left</summary>
+	</key>
+	<key name="green-2" type="i">
+			<range min="0" max="255" />
+	  	<default>0</default>
+			<summary>Green channel section middle</summary>
+	</key>
+	<key name="green-3" type="i">
+			<range min="0" max="255" />
+	  	<default>0</default>
+			<summary>Green channel section right</summary>
+	</key>
+	<key name="blue-1" type="i">
+			<range min="0" max="255" />
+	  	<default>255</default>
+			<summary>Blue channel section left</summary>
+	</key>
+	<key name="blue-2" type="i">
+			<range min="0" max="255" />
+	  	<default>255</default>
+			<summary>Blue channel section middle</summary>
+	</key>
+	<key name="blue-3" type="i">
+			<range min="0" max="255" />
+	  	<default>255</default>
+			<summary>Blue channel section right</summary>
 	</key>
   </schema>
 </schemalist>
