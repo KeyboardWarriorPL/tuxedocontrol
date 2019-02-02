@@ -16,6 +16,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Config = imports.misc.config;
 const Convenience = Me.imports.convenience;
 
+// or tuxedo.conf ??
 const TUX_SYS = '/sys/devices/platform/tuxedo_keyboard/';
 
 const TUX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
@@ -102,7 +103,7 @@ const TuxedoCtl = new Lang.Class({
     },*/
 
     _loadConfig: function() {
-        this._settings = Convenience.getSettings(FOREX_SETTINGS_SCHEMA);
+        this._settings = Convenience.getSettings(TUX_SETTINGS_SCHEMA);
         this._settingsC = this._settings.connect("changed", Lang.bind(this, function() {
             this._refresh();
         }));

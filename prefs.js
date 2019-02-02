@@ -93,7 +93,7 @@ const TuxedoPrefsWidget = new GObject.Class({
         hbox.pack_end(spinButton, false, false, 100);
         this.add(hbox);
         
-        // Colors left
+        /*/ Colors left
         hbox = new Gtk.HBox();
         label = new Gtk.Label({
             label: _("Section: left"),
@@ -143,7 +143,7 @@ const TuxedoPrefsWidget = new GObject.Class({
         this._clr_right.connect('changed', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
         hbox.pack_end(this._clr_right, false, false, 100);
-        this.add(hbox);
+        this.add(hbox);*/
     },
 
     _onColorChanged: function() {
