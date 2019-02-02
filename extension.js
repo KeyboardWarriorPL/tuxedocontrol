@@ -78,6 +78,7 @@ const TuxedoCtl = new Lang.Class({
 
     _apply: function() {
         // write TUX_SYS
+        Util.spawnCommandLine("echo "+this._brightnessV+" > "+TUX_SYS+"brightness");
         this._refresh();
     },
 

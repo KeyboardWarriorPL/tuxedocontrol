@@ -1,4 +1,7 @@
 TUXEDO Control Panel
+
+WORK IN PROGRESS
+
 Designed for convenient changing colours of Tuxedo Notebooks' keyboard backlight.
 It was tested on N85xEJEK notebook with 3 sections of RGB backlight.
 
