@@ -100,15 +100,15 @@ const TuxedoPrefsWidget = new GObject.Class({
             use_markup: true,
             halign: Gtk.Align.START
         });
-        let clr = new Gtk.ColorButton({
+        this._clr_left = new Gtk.ColorButton({
             alpha=65535,
             hexpand=true,
             use_alpha=false,
             rgba={alpha=255,red=0,green=0,blue=255}
         });
-        clr.connect('changed', Lang.bind(this, this._onColorChanged));
+        this._clr_left.connect('changed', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
-        hbox.pack_end(clr, false, false, 100);
+        hbox.pack_end(this._clr_left, false, false, 100);
         this.add(hbox);
         // Colors middle
         hbox = new Gtk.HBox();
@@ -117,15 +117,15 @@ const TuxedoPrefsWidget = new GObject.Class({
             use_markup: true,
             halign: Gtk.Align.START
         });
-        let clr = new Gtk.ColorButton({
+        this._clr_middle = new Gtk.ColorButton({
             alpha=65535,
             hexpand=true,
             use_alpha=false,
             rgba={alpha=255,red=0,green=0,blue=255}
         });
-        clr.connect('changed', Lang.bind(this, this._onColorChanged));
+        this._clr_middle.connect('changed', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
-        hbox.pack_end(clr, false, false, 100);
+        hbox.pack_end(this._clr_middle, false, false, 100);
         this.add(hbox);
         // Colors right
         hbox = new Gtk.HBox();
@@ -134,61 +134,92 @@ const TuxedoPrefsWidget = new GObject.Class({
             use_markup: true,
             halign: Gtk.Align.START
         });
-        let clr = new Gtk.ColorButton({
+        this._clr_right = new Gtk.ColorButton({
             alpha=65535,
             hexpand=true,
             use_alpha=false,
             rgba={alpha=255,red=0,green=0,blue=255}
         });
-        clr.connect('changed', Lang.bind(this, this._onColorChanged));
+        this._clr_right.connect('changed', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
-        hbox.pack_end(clr, false, false, 100);
+        hbox.pack_end(this._clr_right, false, false, 100);
         this.add(hbox);
     },
 
     _onColorChanged: function() {
-        let activeItem = this._comboBox.get_active();
-        this._currentPair = SYMBOLS[activeItem];
+        let l = this._clr_left.get_color();
+        let m = this._clr_middle.get_color();
+        let r = this._clr_right.get_color();
+        let clr = l.red<<0xf + l.green<<0x8 + l.blue;
+        this._sectionLeft = clr;
+        clr = m.red<<0xf + m.green<<0x8 + m.blue;
+        this._sectionMiddle = clr;
+        clr = r.red<<0xf + r.green<<0x8 + r.blue;
+        this._sectionRight = clr;
     },
 
     _loadConfig: function() {
-        this._settings = Convenience.getSettings(FOREX_SETTINGS_SCHEMA);
+        this._settings = Convenience.getSettings(TUX_SETTINGS_SCHEMA);
     },
 
-    get _currentPair() {
+    get _sectionLeft() {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_string(FOREX_PAIR_CURRENT);
+        return this._settings.get_int(TUX_LEFT);
     },
 
-    set _currentPair(v) {
+    set _sectionLeft(v) {
         if (!this._settings)
             this._loadConfig();
-        this._settings.set_string(FOREX_PAIR_CURRENT, v);
+        this._settings.set_int(TUX_LEFT, v);
+    },
+
+    get _sectionMiddle() {
+        if (!this._settings)
+            this._loadConfig();
+        return this._settings.get_int(TUX_MIDDLE);
+    },
+
+    set _sectionMiddle(v) {
+        if (!this._settings)
+            this._loadConfig();
+        this._settings.set_int(TUX_MIDDLE, v);
+    },
+
+    get _sectionRight() {
+        if (!this._settings)
+            this._loadConfig();
+        return this._settings.get_int(TUX_RIGHT);
+    },
+
+    set _sectionRight(v) {
+        if (!this._settings)
+            this._loadConfig();
+        this._settings.set_int(TUX_RIGHT, v);
     },
 
     get _brightnessV() {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_int(FOREX_REFRESH_INTERVAL);
+        return this._settings.get_int(TUX_BRIGHTNESS);
     },
 
     set _brightnessV(v) {
         if (!this._settings)
             this._loadConfig();
-        this._settings.set_int(FOREX_REFRESH_INTERVAL, v);
+        this._settings.set_int(TUX_BRIGHTNESS, v);
     },
 
     get _kbState() {
         if (!this._settings)
             this._loadConfig();
-        return this._settings.get_string(FOREX_PRICE_IN_PANEL);
+        return this._settings.get_bool(TUX_STATE);
     },
 
     set _kbState(v) {
         if (!this._settings)
             this._loadConfig();
-        this._settings.set_string(FOREX_PRICE_IN_PANEL, v);
+        this._settings.set_bool(TUX_STATE, v);
     },
 });
 
