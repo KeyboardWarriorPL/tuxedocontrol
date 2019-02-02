@@ -2,6 +2,7 @@ const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
+const Gdk = imports.gi.Gdk;
 
 const Gettext = imports.gettext.domain('gnome-shell-extension-tuxedocontrol');
 const _ = Gettext.gettext;
@@ -13,15 +14,10 @@ const Lang = imports.lang;
 
 const TUX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
 const TUX_BRIGHTNESS = 'brightness';
-const TUX_RED1 = 'red-1';
-const TUX_RED2 = 'red-2';
-const TUX_RED3 = 'red-3';
-const TUX_GREEN1 = 'green-1';
-const TUX_GREEN2 = 'green-2';
-const TUX_GREEN3 = 'green-3';
-const TUX_BLUE1 = 'blue-1';
-const TUX_BLUE2 = 'blue-2';
-const TUX_BLUE3 = 'blue-3';
+const TUX_LEFT = 'clr-left';
+const TUX_MIDDLE = 'clr-middle';
+const TUX_RIGHT = 'clr-right';
+const TUX_STATE = 'state';
 
 function init() {
     Convenience.initTranslations('gnome-shell-extension-tuxedocontrol');
@@ -39,46 +35,48 @@ const TuxedoPrefsWidget = new GObject.Class({
         this.row_spacing = this.column_spacing = 6;
         this.set_orientation(Gtk.Orientation.VERTICAL);
 
+        // State
         let hbox = new Gtk.HBox();
         let vbox = new Gtk.VBox();
         let label = new Gtk.Label({
-            label: _("Brightness"),
+            label: _("State"),
             use_markup: true,
             halign: Gtk.Align.START
         });        
         let radio = new Gtk.RadioButton();
-        let button = Gtk.RadioButton.new_with_label_from_widget(radio, _("Ask"), {
+        let button = Gtk.RadioButton.new_with_label_from_widget(radio, _("On"), {
             halign: Gtk.Align.CENTER
         });
         button.connect("toggled", Lang.bind(this, function() {
-            this._priceInPanel = _("Ask");
+            this._kbState = _("On");
         }));
-        if (button.label == this._priceInPanel)
+        if (button.label == this._kbState)
             button.set_active(true);
         vbox.add(button);
-        button = Gtk.RadioButton.new_with_label_from_widget(radio, _("Bid"), {
+        button = Gtk.RadioButton.new_with_label_from_widget(radio, _("Off"), {
             halign: Gtk.Align.CENTER
         });
         button.connect("toggled", Lang.bind(this, function() {
-            this._priceInPanel = _("Bid");
+            this._kbState = _("Off");
         }));
-        if (button.label == this._priceInPanel)
+        if (button.label == this._kbState)
             button.set_active(true);
         vbox.add(button);
         hbox.pack_start(label, false, false, 100);
         hbox.pack_end(vbox, false, false, 100);
         this.add(hbox);
 
+        // Brightness
         hbox = new Gtk.HBox();
         label = new Gtk.Label({
-            label: _("Time Update"),
+            label: _("Brightness"),
             hexpand: true,
             halign: Gtk.Align.CENTER
         });
         let ad = new Gtk.Adjustment({
-            lower: 1.0,
+            lower: 0.0,
             step_increment: 1.0,
-            upper: 360.0,
+            upper: 255.0,
             value: 1.0
         });
         let spinButton = new Gtk.SpinButton({
@@ -87,33 +85,68 @@ const TuxedoPrefsWidget = new GObject.Class({
             xalign: 1,
             halign: Gtk.Align.CENTER
         });
-        spinButton.set_value(this._refreshInterval);
+        spinButton.set_value(this._brightnessV);
         spinButton.connect("value_changed", Lang.bind(this, function() {
-            this._refreshInterval = spinButton.value;
+            this._brightnessV = spinButton.value;
         }));
         hbox.pack_start(label, false, false, 100);
         hbox.pack_end(spinButton, false, false, 100);
         this.add(hbox);
         
+        // Colors left
         hbox = new Gtk.HBox();
         label = new Gtk.Label({
-            label: _("Symbols"),
+            label: _("Section: left"),
             use_markup: true,
             halign: Gtk.Align.START
         });
-        this._comboBox = new Gtk.ComboBoxText();
-        for (let i = 0; i < SYMBOLS.length; i++) {
-            this._comboBox.append_text(SYMBOLS[i]);
-            if (SYMBOLS[i] == this._currentPair)
-                this._comboBox.set_active(i);
-        }
-        this._comboBox.connect('changed', Lang.bind(this, this._onComboChanged));
+        let clr = new Gtk.ColorButton({
+            alpha=65535,
+            hexpand=true,
+            use_alpha=false,
+            rgba={alpha=255,red=0,green=0,blue=255}
+        });
+        clr.connect('changed', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
-        hbox.pack_end(this._comboBox, false, false, 100);
+        hbox.pack_end(clr, false, false, 100);
+        this.add(hbox);
+        // Colors middle
+        hbox = new Gtk.HBox();
+        label = new Gtk.Label({
+            label: _("Section: middle"),
+            use_markup: true,
+            halign: Gtk.Align.START
+        });
+        let clr = new Gtk.ColorButton({
+            alpha=65535,
+            hexpand=true,
+            use_alpha=false,
+            rgba={alpha=255,red=0,green=0,blue=255}
+        });
+        clr.connect('changed', Lang.bind(this, this._onColorChanged));
+        hbox.pack_start(label, false, false, 100);
+        hbox.pack_end(clr, false, false, 100);
+        this.add(hbox);
+        // Colors right
+        hbox = new Gtk.HBox();
+        label = new Gtk.Label({
+            label: _("Section: right"),
+            use_markup: true,
+            halign: Gtk.Align.START
+        });
+        let clr = new Gtk.ColorButton({
+            alpha=65535,
+            hexpand=true,
+            use_alpha=false,
+            rgba={alpha=255,red=0,green=0,blue=255}
+        });
+        clr.connect('changed', Lang.bind(this, this._onColorChanged));
+        hbox.pack_start(label, false, false, 100);
+        hbox.pack_end(clr, false, false, 100);
         this.add(hbox);
     },
 
-    _onComboChanged: function() {
+    _onColorChanged: function() {
         let activeItem = this._comboBox.get_active();
         this._currentPair = SYMBOLS[activeItem];
     },
@@ -134,25 +167,25 @@ const TuxedoPrefsWidget = new GObject.Class({
         this._settings.set_string(FOREX_PAIR_CURRENT, v);
     },
 
-    get _refreshInterval() {
+    get _brightnessV() {
         if (!this._settings)
             this._loadConfig();
         return this._settings.get_int(FOREX_REFRESH_INTERVAL);
     },
 
-    set _refreshInterval(v) {
+    set _brightnessV(v) {
         if (!this._settings)
             this._loadConfig();
         this._settings.set_int(FOREX_REFRESH_INTERVAL, v);
     },
 
-    get _priceInPanel() {
+    get _kbState() {
         if (!this._settings)
             this._loadConfig();
         return this._settings.get_string(FOREX_PRICE_IN_PANEL);
     },
 
-    set _priceInPanel(v) {
+    set _kbState(v) {
         if (!this._settings)
             this._loadConfig();
         this._settings.set_string(FOREX_PRICE_IN_PANEL, v);

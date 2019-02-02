@@ -16,18 +16,14 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Config = imports.misc.config;
 const Convenience = Me.imports.convenience;
 
-/*const FOREX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
-const FOREX_PAIR_CURRENT = 'pair-current';
-const FOREX_REFRESH_INTERVAL = 'refresh-interval';
-const FOREX_PRICE_IN_PANEL = 'price-in-panel';
-const FOREX_ONLINE_STATUS = 'online-status';
+const TUX_SYS = '/sys/devices/platform/tuxedo_keyboard/';
 
-const QUOTES_URL = 'http://quotes.instaforex.com/get_quotes.php';
-const UP_POINTING = String.fromCharCode(9650);
-const DOWN_POINTING = String.fromCharCode(9660);
-const SERVER_TIME_GMT_DIFF = 10800;
-
-let _httpSession;*/
+const TUX_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.tuxedocontrol';
+const TUX_BRIGHTNESS = 'brightness';
+const TUX_LEFT = 'clr-left';
+const TUX_MIDDLE = 'clr-middle';
+const TUX_RIGHT = 'clr-right';
+const TUX_STATE = 'state';
 
 const TuxedoCtl = new Lang.Class({
     Name: 'TuxedoCtl',
@@ -49,9 +45,10 @@ const TuxedoCtl = new Lang.Class({
     _buildMenu: function() {
         this.menu.removeAll();
         this.brightness = this._createMenuItem(_("Brightness"));
-        this.red = this._createMenuItem(_("R"));
-        this.green = this._createMenuItem(_("G"));
-        this.blue = this._createMenuItem(_("B"));
+        this.left = this._createMenuItem(_("Left"));
+        this.middle = this._createMenuItem(_("Middle"));
+        this.right = this._createMenuItem(_("Right"));
+        this.state = this._createMenuItem(_("State"));
 
         let separator = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(separator);
