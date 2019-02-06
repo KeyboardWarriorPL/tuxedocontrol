@@ -17,7 +17,6 @@ const TUX_BRIGHTNESS = 'brightness';
 const TUX_LEFT = 'clr-left';
 const TUX_MIDDLE = 'clr-middle';
 const TUX_RIGHT = 'clr-right';
-const TUX_STATE = 'state';
 
 function init() {
     Convenience.initTranslations('gnome-shell-extension-tuxedocontrol');
@@ -35,40 +34,9 @@ const TuxedoPrefsWidget = new GObject.Class({
         this.row_spacing = this.column_spacing = 6;
         this.set_orientation(Gtk.Orientation.VERTICAL);
 
-        // State
-        let hbox = new Gtk.HBox();
-        let vbox = new Gtk.VBox();
-        let label = new Gtk.Label({
-            label: _("State"),
-            use_markup: true,
-            halign: Gtk.Align.START
-        });        
-        let radio = new Gtk.RadioButton();
-        let button = Gtk.RadioButton.new_with_label_from_widget(radio, _("On"), {
-            halign: Gtk.Align.CENTER
-        });
-        button.connect("toggled", Lang.bind(this, function() {
-            this._kbState = true;
-        }));
-        if (this._kbState)
-            button.set_active(true);
-        vbox.add(button);
-        button = Gtk.RadioButton.new_with_label_from_widget(radio, _("Off"), {
-            halign: Gtk.Align.CENTER
-        });
-        button.connect("toggled", Lang.bind(this, function() {
-            this._kbState = false;
-        }));
-        if (!this._kbState)
-            button.set_active(true);
-        vbox.add(button);
-        hbox.pack_start(label, false, false, 100);
-        hbox.pack_end(vbox, false, false, 100);
-        this.add(hbox);
-
         // Brightness
-        hbox = new Gtk.HBox();
-        label = new Gtk.Label({
+        let hbox = new Gtk.HBox();
+        let label = new Gtk.Label({
             label: _("Brightness"),
             hexpand: true,
             halign: Gtk.Align.CENTER
@@ -93,20 +61,15 @@ const TuxedoPrefsWidget = new GObject.Class({
         hbox.pack_end(spinButton, false, false, 100);
         this.add(hbox);
         
-        /*/ Colors left
+        // Colors left
         hbox = new Gtk.HBox();
         label = new Gtk.Label({
             label: _("Section: left"),
             use_markup: true,
             halign: Gtk.Align.START
         });
-        this._clr_left = new Gtk.ColorButton({
-            alpha=65535,
-            hexpand=true,
-            use_alpha=false,
-            rgba={alpha=255,red=0,green=0,blue=255}
-        });
-        this._clr_left.connect('changed', Lang.bind(this, this._onColorChanged));
+        this._clr_left = new Gtk.ColorButton({});
+        this._clr_left.connect('color_activated', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
         hbox.pack_end(this._clr_left, false, false, 100);
         this.add(hbox);
@@ -117,13 +80,8 @@ const TuxedoPrefsWidget = new GObject.Class({
             use_markup: true,
             halign: Gtk.Align.START
         });
-        this._clr_middle = new Gtk.ColorButton({
-            alpha=65535,
-            hexpand=true,
-            use_alpha=false,
-            rgba={alpha=255,red=0,green=0,blue=255}
-        });
-        this._clr_middle.connect('changed', Lang.bind(this, this._onColorChanged));
+        this._clr_middle = new Gtk.ColorButton({});
+        this._clr_middle.connect('color_activated', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
         hbox.pack_end(this._clr_middle, false, false, 100);
         this.add(hbox);
@@ -134,16 +92,11 @@ const TuxedoPrefsWidget = new GObject.Class({
             use_markup: true,
             halign: Gtk.Align.START
         });
-        this._clr_right = new Gtk.ColorButton({
-            alpha=65535,
-            hexpand=true,
-            use_alpha=false,
-            rgba={alpha=255,red=0,green=0,blue=255}
-        });
-        this._clr_right.connect('changed', Lang.bind(this, this._onColorChanged));
+        this._clr_right = new Gtk.ColorButton({});
+        this._clr_right.connect('color_activated', Lang.bind(this, this._onColorChanged));
         hbox.pack_start(label, false, false, 100);
         hbox.pack_end(this._clr_right, false, false, 100);
-        this.add(hbox);*/
+        this.add(hbox);
     },
 
     _onColorChanged: function() {
@@ -209,18 +162,6 @@ const TuxedoPrefsWidget = new GObject.Class({
             this._loadConfig();
         this._settings.set_int(TUX_BRIGHTNESS, v);
     },
-
-    get _kbState() {
-        if (!this._settings)
-            this._loadConfig();
-        return this._settings.get_boolean(TUX_STATE);
-    },
-
-    set _kbState(v) {
-        if (!this._settings)
-            this._loadConfig();
-        this._settings.set_boolean(TUX_STATE, v);
-    }
 });
 
 function buildPrefsWidget() {
