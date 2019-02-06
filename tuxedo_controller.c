@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+
 #define TUX_SYS "/sys/devices/platform/tuxedo_keyboard/"
 
 typedef struct {
@@ -16,13 +17,14 @@ char* strappend(char* left, char* right) {
     char* whole;
     lenl = strlen(left);
     lenr = strlen(right);
-    whole = malloc(sizeof(char)*(lenl+strlen(right)));
+    whole = (char*)malloc(sizeof(char)*(lenl+lenr));
     for (i = 0; i < lenl; i++) {
         whole[i] = left[i];
     }
     for (i = lenl; i-lenl < lenr; i++) {
         whole[i] = right[i - lenl];
     }
+    whole[i] = '\0';
     return whole;
 }
 
@@ -37,11 +39,18 @@ void setparam(char* param, char* value) {
     len = strlen(value);
     handle = sysopen(param);
     if (handle>=0) {
-        openlog("tuxedo_controller", LOG_CONS, LOG_LOCAL1);
+        openlog("tuxedo_ctl", LOG_CONS, LOG_LOCAL1);
         syslog(LOG_NOTICE, "Writing %s with %s\n",param,value);
         closelog();
+        ftruncate(handle, len);
         write(handle, value, len);
+        write(handle, "\n", 1);
         close(handle);
+    }
+    else {
+        openlog("tuxedo_ctl", LOG_CONS, LOG_LOCAL1);
+        syslog(LOG_ERR, "Failed to access file %s\n",param);
+        closelog();
     }
 }
 
