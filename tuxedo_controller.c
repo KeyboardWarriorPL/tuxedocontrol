@@ -1,9 +1,15 @@
+#include <syslog.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #define TUX_SYS "/sys/devices/platform/tuxedo_keyboard/"
+
+typedef struct {
+    char* name;
+    char* value;
+} Param;
 
 char* strappend(char* left, char* right) {
     int lenl, lenr, i;
@@ -29,15 +35,42 @@ int sysopen(char* f) {
 void setparam(char* param, char* value) {
     int handle, len;
     len = strlen(value);
-    printf("%s = %d\n",value,len);
     handle = sysopen(param);
     if (handle>=0) {
+        openlog("tuxedo_controller", LOG_CONS);
+        syslog(LOG_NOTICE, "Writing %s with %s\n",param,value);
+        closelog();
         write(handle, value, len);
         close(handle);
     }
 }
 
-int main() {
-    //setparam("mode", "0");
+void setwithparam(Param p) {
+    setparam(p.name, p.value);
+}
+
+void loadArgs(int lp, Param opt[lp], int ac, char* av[]) {
+    int i, a = 2;
+    opt[0] = (Param){"mode", "0"};
+    for (i = 1; i < lp; i++) {
+        if (a < ac) {
+            opt[i] = (Param){av[a-1], av[a]};
+            a += 2;
+        }
+        else {
+            opt[i] = NULL;
+        }
+    }
+}
+
+int main(int argc, char* argv[]) {
+    int x;
+    Param options[5];
+    loadArgs(5, options, argc, argv);
+    for (x = 0; x < 5; x++) {
+        if (options[x]!=NULL) {
+            setwithparam(options[x]);
+        }
+    }
     return 0;
 }
