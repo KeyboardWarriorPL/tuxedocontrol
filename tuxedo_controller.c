@@ -37,7 +37,7 @@ void setparam(char* param, char* value) {
     len = strlen(value);
     handle = sysopen(param);
     if (handle>=0) {
-        openlog("tuxedo_controller", LOG_CONS);
+        openlog("tuxedo_controller", LOG_CONS, LOG_LOCAL1);
         syslog(LOG_NOTICE, "Writing %s with %s\n",param,value);
         closelog();
         write(handle, value, len);
@@ -58,7 +58,7 @@ void loadArgs(int lp, Param opt[lp], int ac, char* av[]) {
             a += 2;
         }
         else {
-            opt[i] = NULL;
+            opt[i] = (Param){NULL, NULL};
         }
     }
 }
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     Param options[5];
     loadArgs(5, options, argc, argv);
     for (x = 0; x < 5; x++) {
-        if (options[x]!=NULL) {
+        if (options[x].name!=NULL) {
             setwithparam(options[x]);
         }
     }
