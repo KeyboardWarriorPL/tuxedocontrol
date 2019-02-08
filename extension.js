@@ -6,9 +6,9 @@ const PopupMenu = imports.ui.popupMenu;
 const Util = imports.misc.util;
 const Gtk = imports.gi.Gtk;
 const Gdk = imports.gi.Gdk;
-//const Soup = imports.gi.Soup;
+const Soup = imports.gi.Soup;
+const Clutter = imports.gi.Clutter;
 //const Mainloop = imports.mainloop;
-//const Clutter = imports.gi.Clutter;
 
 const Gettext = imports.gettext.domain('gnome-shell-extension-tuxedocontrol');
 const _ = Gettext.gettext;
@@ -61,7 +61,7 @@ const TuxedoCtl = new Lang.Class({
         spinButton.connect("value_changed", Lang.bind(this, function() {
             this._brightnessV = this.brightness.value;
         }));
-        this.brightness = this._createMenuItem(_("Brightness", spinButton));
+        /*this.brightness = this._createMenuItem(_("Brightness", spinButton));
         let clrb = new Gtk.ColorButton({});
         clrb.connect('color_activated', Lang.bind(this, this._onColorChanged));
         this.left = this._createMenuItem(_("Left"), clrb);
@@ -70,7 +70,7 @@ const TuxedoCtl = new Lang.Class({
         this.middle = this._createMenuItem(_("Middle"), clrb);
         clrb = new Gtk.ColorButton({});
         clrb.connect('color_activated', Lang.bind(this, this._onColorChanged));
-        this.right = this._createMenuItem(_("Right"), clrb);
+        this.right = this._createMenuItem(_("Right"), clrb);*/
 
         let separator = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(separator);
